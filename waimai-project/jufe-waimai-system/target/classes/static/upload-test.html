@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .login-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .login-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .btn-login:hover {
+            background: #1976D2;
+        }
+
+        .user-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .user-info.show {
+            display: block;
+        }
+
+        .user-info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1976D2;
+        }
+
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover,
+        .upload-area.dragover {
+            border-color: #4CAF50;
+            background: #f9fff9;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .btn-upload {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .btn-upload:hover {
+            background: #45a049;
+        }
+
+        .btn-upload:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .file-list {
+            margin-top: 20px;
+        }
+
+        .file-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .file-size {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .file-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .status-waiting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-uploading {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📁 文件上传测试</h1>
+        
+        <!-- 登录区域 -->
+        <div class="login-section">
+            <div class="login-title">🔐 用户登录</div>
+            <div class="form-group">
+                <label>用户名：</label>
+                <input type="text" id="username" placeholder="请输入用户名" value="student001">
+            </div>
+            <div class="form-group">
+                <label>密码：</label>
+                <input type="password" id="password" placeholder="请输入密码" value="123456">
+            </div>
+            <button class="btn-login" id="loginBtn">登录</button>
+        </div>
+
+        <!-- 用户信息显示 -->
+        <div class="user-info" id="userInfo">
+            <div class="user-info-title">✅ 已登录</div>
+            <div id="userInfoContent"></div>
+        </div>
+        
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">☁️</div>
+            <div class="upload-text">点击或将文件拖拽到此处</div>
+            <div class="upload-hint">支持各种文件格式，最大 10MB</div>
+        </div>
+
+        <input type="file" id="fileInput" multiple>
+
+        <button class="btn-upload" id="uploadBtn" disabled>
+            开始上传
+        </button>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="result" id="result" style="display: none;">
+            <div class="result-title">上传结果：</div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userInfoContent = document.getElementById('userInfoContent');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const result = document.getElementById('result');
+        const resultContent = document.getElementById('resultContent');
+
+        let selectedFiles = [];
+        let authToken = null;
+
+        // 登录功能
+        loginBtn.addEventListener('click', async () => {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.code === 200) {
+                    // 登录成功
+                    authToken = result.data.token;
+                    userInfo.classList.add('show');
+                    userInfoContent.innerHTML = `
+                        <div><strong>用户 ID：</strong>${result.data.userId}</div>
+                        <div><strong>用户名：</strong>${result.data.username}</div>
+                        <div><strong>姓名：</strong>${result.data.name}</div>
+                        <div><strong>手机号：</strong>${result.data.phone}</div>
+                        <div><strong>角色：</strong>${getRoleName(result.data.roleType)}</div>
+                    `;
+                    alert('登录成功！');
+                } else {
+                    alert('登录失败：' + result.message);
+                }
+            } catch (error) {
+                console.error('登录失败:', error);
+                alert('登录失败，请检查网络连接');
+            }
+        });
+
+        // 获取角色名称
+        function getRoleName(roleType) {
+            const roleMap = {
+                1: '学生',
+                2: '骑手',
+                3: '商家'
+            };
+            return roleMap[roleType] || '未知';
+        }
+
+        // 点击上传区域
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        // 文件选择
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        // 拖拽事件
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        // 处理文件
+        function handleFiles(files) {
+            const newFiles = Array.from(files).map(file => ({
+                file: file,
+                status: 'waiting',
+                progress: 0
+            }));
+
+            selectedFiles = [...selectedFiles, ...newFiles];
+            renderFileList();
+            uploadBtn.disabled = false;
+        }
+
+        // 渲染文件列表
+        function renderFileList() {
+            fileList.innerHTML = selectedFiles.map((item, index) => `
+                <div class="file-item">
+                    <div class="file-info">
+                        <div>
+                            <div class="file-name">${item.file.name}</div>
+                            <div class="file-size">${formatFileSize(item.file.size)}</div>
+                            ${item.status === 'uploading' ? `
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: ${item.progress}%"></div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <span class="file-status status-${item.status}">${getStatusText(item.status)}</span>
+                </div>
+            `).join('');
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // 获取状态文本
+        function getStatusText(status) {
+            const statusMap = {
+                waiting: '等待上传',
+                uploading: '上传中...',
+                success: '成功',
+                error: '失败'
+            };
+            return statusMap[status] || status;
+        }
+
+        // 上传按钮
+        uploadBtn.addEventListener('click', async () => {
+            const filesToUpload = selectedFiles.filter(f => f.status === 'waiting');
+            
+            for (let i = 0; i < filesToUpload.length; i++) {
+                await uploadFile(filesToUpload[i]);
+            }
+
+            // 显示结果
+            const results = selectedFiles.map(item => ({
+                name: item.file.name,
+                size: formatFileSize(item.file.size),
+                status: item.status,
+                url: item.url
+            }));
+            
+            result.style.display = 'block';
+            resultContent.textContent = JSON.stringify(results, null, 2);
+        });
+
+        // 上传单个文件
+        function uploadFile(fileItem) {
+            return new Promise((resolve) => {
+                const formData = new FormData();
+                formData.append('file', fileItem.file);
+
+                fileItem.status = 'uploading';
+                renderFileList();
+
+                const xhr = new XMLHttpRequest();
+
+                // 监听上传进度
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        fileItem.progress = (e.loaded / e.total) * 100;
+                        renderFileList();
+                    }
+                });
+
+                // 上传完成
+                xhr.addEventListener('load', () => {
+                    if (xhr.status === 200) {
+                        fileItem.status = 'success';
+                        try {
+                            const response = JSON.parse(xhr.responseText);
+                            fileItem.url = response.data || '上传成功';
+                        } catch (e) {
+                            fileItem.url = '上传成功';
+                        }
+                    } else {
+                        fileItem.status = 'error';
+                        fileItem.url = 'HTTP ' + xhr.status;
+                    }
+                    renderFileList();
+                    resolve();
+                });
+
+                // 上传失败
+                xhr.addEventListener('error', () => {
+                    fileItem.status = 'error';
+                    renderFileList();
+                    resolve();
+                });
+
+                // 发送请求 - 携带 token
+                xhr.open('POST', '/upload/upload');
+                if (authToken) {
+                    xhr.setRequestHeader('Authorization', authToken);
+                }
+                xhr.send(formData);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leon.mapper.OrdersMapper">
+    
+    <resultMap id="BaseResultMap" type="com.leon.entity.Orders">
+        <id column="id" property="id"/>
+        <result column="order_no" property="orderNo"/>
+        <result column="student_id" property="studentId"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="rider_id" property="riderId"/>
+        <result column="order_status" property="orderStatus"/>
+        <result column="total_amount" property="totalAmount"/>
+        <result column="delivery_fee" property="deliveryFee"/>
+        <result column="packing_fee" property="packingFee"/>
+        <result column="discount_amount" property="discountAmount"/>
+        <result column="pay_amount" property="payAmount"/>
+        <result column="payment_method" property="paymentMethod"/>
+        <result column="delivery_address" property="deliveryAddress"/>
+        <result column="receiver_name" property="receiverName"/>
+        <result column="receiver_phone" property="receiverPhone"/>
+        <result column="delivery_time" property="deliveryTime"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="payment_time" property="paymentTime"/>
+        <result column="merchant_accept_time" property="merchantAcceptTime"/>
+        <result column="rider_accept_time" property="riderAcceptTime"/>
+        <result column="delivery_start_time" property="deliveryStartTime"/>
+        <result column="delivery_complete_time" property="deliveryCompleteTime"/>
+        <result column="cancel_time" property="cancelTime"/>
+        <result column="cancel_reason" property="cancelReason"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, order_no, student_id, merchant_id, rider_id, order_status, total_amount, 
+        delivery_fee, packing_fee, discount_amount, pay_amount, payment_method, 
+        delivery_address, receiver_name, receiver_phone, delivery_time, remark, 
+        create_time, payment_time, merchant_accept_time, rider_accept_time, 
+        delivery_start_time, delivery_complete_time, cancel_time, cancel_reason, update_time
+    </sql>
+    
+    <insert id="insert" parameterType="com.leon.entity.Orders" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO orders (order_no, student_id, merchant_id, rider_id, order_status, total_amount,
+                            delivery_fee, packing_fee, discount_amount, pay_amount, payment_method,
+                            delivery_address, receiver_name, receiver_phone, delivery_time, remark)
+        VALUES (#{orderNo}, #{studentId}, #{merchantId}, #{riderId}, #{orderStatus}, #{totalAmount},
+                #{deliveryFee}, #{packingFee}, #{discountAmount}, #{payAmount}, #{paymentMethod},
+                #{deliveryAddress}, #{receiverName}, #{receiverPhone}, #{deliveryTime}, #{remark})
+    </insert>
+    
+    <update id="updateById" parameterType="com.leon.entity.Orders">
+        UPDATE orders
+        <set>
+            <if test="orderStatus != null">order_status = #{orderStatus},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="deliveryFee != null">delivery_fee = #{deliveryFee},</if>
+            <if test="packingFee != null">packing_fee = #{packingFee},</if>
+            <if test="discountAmount != null">discount_amount = #{discountAmount},</if>
+            <if test="payAmount != null">pay_amount = #{payAmount},</if>
+            <if test="paymentMethod != null">payment_method = #{paymentMethod},</if>
+            <if test="deliveryAddress != null">delivery_address = #{deliveryAddress},</if>
+            <if test="receiverName != null">receiver_name = #{receiverName},</if>
+            <if test="receiverPhone != null">receiver_phone = #{receiverPhone},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="paymentTime != null">payment_time = #{paymentTime},</if>
+            <if test="merchantAcceptTime != null">merchant_accept_time = #{merchantAcceptTime},</if>
+            <if test="riderAcceptTime != null">rider_accept_time = #{riderAcceptTime},</if>
+            <if test="deliveryStartTime != null">delivery_start_time = #{deliveryStartTime},</if>
+            <if test="deliveryCompleteTime != null">delivery_complete_time = #{deliveryCompleteTime},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM orders
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByOrderNo" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM orders
+        WHERE order_no = #{orderNo}
+    </select>
+    
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM orders
+        <where>
+            <if test="studentId != null">
+                AND student_id = #{studentId}
+            </if>
+            <if test="merchantId != null">
+                AND merchant_id = #{merchantId}
+            </if>
+            <if test="riderId != null">
+                AND rider_id = #{riderId}
+            </if>
+            <if test="orderStatus != null">
+                AND order_status = #{orderStatus}
+            </if>
+            <if test="orderNo != null and orderNo != ''">
+                AND order_no = #{orderNo}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+    
+    <update id="updateStatus">
+        UPDATE orders
+        SET order_status = #{status}
+        WHERE id = #{id}
+    </update>
+</mapper>

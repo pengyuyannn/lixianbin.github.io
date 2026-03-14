@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.leon.mapper.ProductMapper">
+    
+    <resultMap id="BaseResultMap" type="com.leon.entity.Product">
+        <id column="id" property="id"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="image" property="image"/>
+        <result column="price" property="price"/>
+        <result column="original_price" property="originalPrice"/>
+        <result column="category" property="category"/>
+        <result column="stock" property="stock"/>
+        <result column="sold_count" property="soldCount"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+    
+    <sql id="Base_Column_List">
+        id, merchant_id, name, description, image, price, original_price, category, 
+        stock, sold_count, status, sort_order, create_time, update_time
+    </sql>
+    
+    <insert id="insert" parameterType="com.leon.entity.Product" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (merchant_id, name, description, image, price, original_price, category,
+                             stock, sold_count, status, sort_order)
+        VALUES (#{merchantId}, #{name}, #{description}, #{image}, #{price}, #{originalPrice}, #{category},
+                #{stock}, #{soldCount}, #{status}, #{sortOrder})
+    </insert>
+    
+    <update id="updateById" parameterType="com.leon.entity.Product">
+        UPDATE product
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="originalPrice != null">original_price = #{originalPrice},</if>
+            <if test="category != null">category = #{category},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="soldCount != null">sold_count = #{soldCount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="sortOrder != null">sort_order = #{sortOrder},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+    
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product
+        WHERE id = #{id}
+    </select>
+    
+    <select id="selectByMerchantId" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product
+        WHERE merchant_id = #{merchantId}
+        ORDER BY sort_order DESC, create_time DESC
+    </select>
+    
+    <select id="selectList" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product
+        <where>
+            <if test="merchantId != null">
+                AND merchant_id = #{merchantId}
+            </if>
+            <if test="category != null and category != ''">
+                AND category = #{category}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+            <if test="name != null and name != ''">
+                AND name LIKE CONCAT('%', #{name}, '%')
+            </if>
+        </where>
+        ORDER BY sort_order DESC, create_time DESC
+    </select>
+    
+    <update id="updateStock">
+        UPDATE product
+        SET stock = #{stock}
+        WHERE id = #{id}
+    </update>
+    
+    <delete id="deleteById">
+        DELETE FROM product WHERE id = #{id}
+    </delete>
+</mapper>
